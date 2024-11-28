@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dibujo en Canvas</title>
+  <style>
+    canvas {
+      border: 1px solid black;
+      display: block;
+      margin: 20px auto;
+      cursor: crosshair;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="drawingCanvas" width="800" height="400"></canvas>
+
+  <script>
+    const canvas = document.getElementById("drawingCanvas");
+    const ctx = canvas.getContext("2d");
+    let isDrawing = false;
+    const brushRadius = 20; 
+    ctx.fillStyle = "rgba(0, 0, 0, 0.2)"; 
+    ctx.shadowBlur = 10; 
+    ctx.shadowColor = "rgba(0, 0, 0, 0.5)"; 
+
+    function drawDiffusePoint(x, y) {
+      ctx.beginPath();
+      ctx.arc(x, y, brushRadius, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    canvas.addEventListener("mousedown", (e) => {
+      isDrawing = true;
+      drawDiffusePoint(e.offsetX, e.offsetY);
+    });
+
+    canvas.addEventListener("mousemove", (e) => {
+      if (isDrawing) {
+        drawDiffusePoint(e.offsetX, e.offsetY);
+      }
+    });
+
+    canvas.addEventListener("mouseup", () => {
+      isDrawing = false;
+    });
+
+    canvas.addEventListener("mouseleave", () => {
+      isDrawing = false;
+    });
+  </script>
+</body>
+</html>

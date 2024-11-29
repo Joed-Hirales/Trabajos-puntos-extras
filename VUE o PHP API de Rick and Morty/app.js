@@ -1,27 +1,27 @@
-const { createApp } = Vue;
-
-createApp({
-  data() {
-    return {
-      characters: [],
-      nextPage: 'https://rickandmortyapi.com/api/character/'
-    };
+new Vue({
+  el: '#app',
+  data: {
+      loading: true,
+      launches: []
   },
   methods: {
-    async fetchCharacters() {
-      if (this.nextPage) {
-        try {
-          const response = await fetch(this.nextPage);
-          const data = await response.json();
-          this.characters.push(...data.results);
-          this.nextPage = data.info.next;
-        } catch (error) {
-          console.error('Error fetching characters:', error);
-        }
+      fetchLaunches() {
+          axios.get('https://api.spacexdata.com/v4/launches')
+              .then(response => {
+                  this.launches = response.data.slice(0, 5);  
+                  this.loading = false;
+              })
+              .catch(error => {
+                  console.error('Error fetching SpaceX launches:', error);
+                  this.loading = false;
+              });
+      },
+      formatDate(date) {
+          const options = { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' };
+          return new Date(date).toLocaleDateString('en-US', options); 
       }
-    }
   },
-  mounted() {
-    this.fetchCharacters();
+  created() {
+      this.fetchLaunches();
   }
-}).mount('#app');
+});

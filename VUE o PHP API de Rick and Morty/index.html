@@ -1,115 +1,142 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rick and Morty API</title>
-  <script src="https://unpkg.com/vue@3"></script>
-  <style>
-    body {
-      font-family: 'Arial', sans-serif;
-      margin: 0;
-      padding: 0;
-      background: linear-gradient(to right, #000000, #575450);
-      color: #333;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpaceX Launches</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script> 
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: #fde8e8;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #333;
+        }
 
-    .container {
-      max-width: 900px;
-      margin: 50px auto;
-      padding: 20px;
-      background: #fff;
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-      border-radius: 16px;
-    }
+        #app {
+            background-color: #910303;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 1000px; 
+            padding: 40px;
+            margin: 20px;
+            text-align: center;
+            box-sizing: border-box;
+        }
 
-    h1 {
-      text-align: center;
-      font-size: 2.5rem;
-      color: #ff0000;
-      margin-bottom: 30px;
-    }
+        .context-card {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 40px;
+            text-align: left;
+        }
 
-    .character-card {
-      display: flex;
-      align-items: center;
-      margin: 15px 0;
-      padding: 15px;
-      border: 1px solid #ff0000;
-      border-radius: 16px;
-      background: linear-gradient(to right, #f3f3f3, #fefefe);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
+        .context-card p {
+            font-size: 1.2em;
+            color: #7f8c8d;
+            line-height: 1.6;
+        }
 
-    .character-card:hover {
-      transform: scale(1.05);
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-    }
+        h1 {
+            color: #d9eafc;
+            font-size: 3em;
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
 
-    .character-card img {
-      width: 100px;
-      height: 100px;
-      border-radius: 50%;
-      margin-right: 20px;
-      border: 2px solid #ff0000;
-    }
+        .launch-list {
+            list-style: none;
+            padding: 0;
+        }
 
-    .character-card .info {
-      flex: 1;
-    }
+        .launch-item {
+            background-color: #ffffff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            text-align: left;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
 
-    .character-card h3 {
-      font-size: 1.5rem;
-      margin: 0;
-      color: #333;
-    }
+        .launch-item h2 {
+            font-size: 2em;
+            color: #34495e;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
 
-    .character-card p {
-      margin: 5px 0;
-      font-size: 0.9rem;
-      color: #555;
-    }
+        .launch-item p {
+            font-size: 1.1em;
+            color: #7f8c8d;
+            margin-bottom: 10px;
+        }
 
-    .load-more {
-      display: inline-block;
-      margin: 20px auto;
-      padding: 12px 24px;
-      font-size: 1rem;
-      color: #fff;
-      background: #ff0000;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      text-align: center;
-      transition: background 0.3s ease, transform 0.2s ease;
-    }
+        .launch-item .date {
+            font-size: 1.2em;
+            color: #c51111;
+            font-weight: bold;
+        }
 
-    .load-more:hover {
-      background: #ff0000;
-      transform: translateY(-3px);
-    }
+        .launch-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
 
-    .load-more:active {
-      transform: translateY(0);
-    }
-  </style>
+        .loading {
+            font-size: 1.2em;
+            color: #7f8c8d;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5em;
+            }
+
+            .launch-item {
+                padding: 15px;
+            }
+
+            .context-card p {
+                font-size: 1.1em;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div id="app">
-    <div class="container">
-      <h1>Rick and Morty Characters</h1>
-      <div v-for="character in characters" :key="character.id" class="character-card">
-        <img :src="character.image" :alt="character.name" />
-        <div class="info">
-          <h3>{{ character.name }}</h3>
-          <p>Status: {{ character.status }}</p>
-          <p>Species: {{ character.species }}</p>
+    <div id="app">
+        <div class="context-card">
+            <h2>About SpaceX</h2>
+            <p>
+                SpaceX, founded by Elon Musk in 2002, is a private company focused on reducing the cost of space travel and enabling the colonization of Mars. The company has achieved several remarkable milestones, including the first private spacecraft to reach the International Space Station. Below, you can explore the latest SpaceX launches, including their mission names, dates, and details.
+            </p>
         </div>
-      </div>
-      <button v-if="nextPage" class="load-more" @click="fetchCharacters">Load More</button>
+        
+        <h1>SpaceX Launches</h1>
+        
+        <div v-if="loading" class="loading">
+            <p>Loading launches...</p>
+        </div>
+
+        <ul v-else class="launch-list">
+            <li v-for="launch in launches" :key="launch.id" class="launch-item">
+                <h2>{{ launch.name }}</h2>
+                <p class="date">{{ formatDate(launch.date_utc) }}</p>
+                <p>{{ launch.details ? launch.details : 'No details available' }}</p>
+            </li>
+        </ul>
     </div>
-  </div>
-  <script src="./app.js"></script>
+
+    <script src="app.js"></script>
 </body>
 </html>

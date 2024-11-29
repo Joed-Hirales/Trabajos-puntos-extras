@@ -1,27 +1,24 @@
-const { createApp } = Vue;
-
-createApp({
-  data() {
-    return {
-      characters: [],
-      nextPage: 'https://rickandmortyapi.com/api/character/'
-    };
+new Vue({
+  el: '#app',
+  data: {
+      loading: true,
+      countries: []
   },
   methods: {
-    async fetchCharacters() {
-      if (this.nextPage) {
-        try {
-          const response = await fetch(this.nextPage);
-          const data = await response.json();
-          this.characters.push(...data.results);
-          this.nextPage = data.info.next;
-        } catch (error) {
-          console.error('Error fetching characters:', error);
-        }
+      fetchCountries() {
+          axios.get('https://restcountries.com/v2/all')
+              .then(response => {
+                  this.countries = response.data;
+                  this.countries.sort((a, b) => a.name.localeCompare(b.name)); 
+                  this.loading = false;
+              })
+              .catch(error => {
+                  console.error('Error fetching countries:', error);
+                  this.loading = false;
+              });
       }
-    }
   },
-  mounted() {
-    this.fetchCharacters();
+  created() {
+      this.fetchCountries();
   }
-}).mount('#app');
+});

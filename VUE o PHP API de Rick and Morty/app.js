@@ -1,27 +1,34 @@
-const { createApp } = Vue;
-
-createApp({
-  data() {
-    return {
-      characters: [],
-      nextPage: 'https://rickandmortyapi.com/api/character/'
-    };
+new Vue({
+  el: '#app',
+  data: {
+      user: null,
+      loading: true,
   },
   methods: {
-    async fetchCharacters() {
-      if (this.nextPage) {
-        try {
-          const response = await fetch(this.nextPage);
-          const data = await response.json();
-          this.characters.push(...data.results);
-          this.nextPage = data.info.next;
-        } catch (error) {
-          console.error('Error fetching characters:', error);
-        }
+      async fetchUser() {
+          this.loading = true; 
+          try {
+              const response = await axios.get('https://randomuser.me/api/');
+              const userData = response.data.results[0]; 
+
+              this.user = {
+                  name: `${userData.name.first} ${userData.name.last}`,
+                  email: userData.email,
+                  phone: userData.phone,
+                  picture: userData.picture.large,
+              };
+              this.loading = false;
+          } catch (error) {
+              console.error('Error al obtener datos usuario:', error);
+              this.loading = false;
+          }
+      },
+
+      fetchNewUser() {
+          this.fetchUser(); 
       }
-    }
   },
-  mounted() {
-    this.fetchCharacters();
+  created() {
+      this.fetchUser();
   }
-}).mount('#app');
+});
